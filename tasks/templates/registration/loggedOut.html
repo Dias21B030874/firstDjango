@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}
+Logout success
+{% endblock %}
+
+{% block content %}
+<h3>Successfully logged out!</h3>
+<a href='{%url 'task:task_list' %}'?next={{ next }}>Go to task list</a>
+{% endblock %}

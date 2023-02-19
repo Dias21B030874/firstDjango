@@ -1,76 +1,58 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse, reverse_lazy
-from .models import Task
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView, LogoutView
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+
 from .forms import TaskForm
+from .models import Task
 
-# Create your views here.
-# Functional based view
-# Create a task
-# def task_create(request):
-#     if request.method == "POST":
-#         form = TaskForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return redirect(reverse("tasks:task_list"))
-#     else:
-#         form = TaskForm()
-#
-#     return render(request, "tasks/task_form.html", { "form": form, })
-#
-#
-# # Retrieve task list
-# def task_list(request):
-#     tasks = Task.objects.all()
-#     return render(request, "tasks/task_list.html", { "tasks": tasks,})
-#
-#
-# # Retrieve a single task
-# def task_detail(request, pk):
-#     task = get_object_or_404(Task, pk=pk)
-#     return render(request, "tasks/task_detail.html", { "task": task, })
-#
-#
-# # Update a single task
-# def task_update(request, pk):
-#     task_obj = get_object_or_404(Task, pk=pk)
-#     if request.method == 'POST':
-#         form = TaskForm(instance=task_obj, data=request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return redirect(reverse("tasks:task_detail", args=[pk,]))
-#     else:
-#         form = TaskForm(instance=task_obj)
-#
-#     return render(request, "tasks/task_form.html", { "form": form, "object": task_obj})
-#
-#
-# # Delete a single task
-# def task_delete(request, pk):
-#     task_obj = get_object_or_404(Task, pk=pk)
-#     task_obj.delete()
-#     return redirect(reverse("tasks:task_list"))
-
-# Class Based Views
-from django.views.generic import ListView, DetailView, \
-    CreateView, UpdateView, DeleteView
 
 class TaskListView(ListView):
     model = Task
     context_object_name = 'tasks'
 
+
 class TaskDetailView(DetailView):
     model = Task
 
-class TaskCreateView(CreateView):
+
+class TaskCreateView(LoginRequiredMixin, CreateView):
     model = Task
     form_class = TaskForm
+    login_url = reverse_lazy('tasks:signin')
     success_url = reverse_lazy('tasks:task_list')
 
-class TaskUpdateView(UpdateView):
+
+class TaskUpdateView(LoginRequiredMixin, UpdateView):
     model = Task
     form_class = TaskForm
+    login_url = reverse_lazy('tasks:signin')
     success_url = reverse_lazy('tasks:task_list')
 
-class TaskDeleteView(DeleteView):
+
+class TaskDeleteView(LoginRequiredMixin, DeleteView):
     model = Task
+    login_url = reverse_lazy('tasks:signin')
     success_url = reverse_lazy('tasks:task_list')
+
+
+class SimpleLoginView(LoginView):
+    template_name = 'registration/signin.html'
+
+
+class SimpleSignupView(CreateView):
+    form_class = UserCreationForm
+    success_url = reverse_lazy('tasks:signin')
+    template_name = 'registration/signup.html'
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        next_url = self.request.GET.get('next')
+        if next_url:
+            self.success_url = next_url
+        return response
+
+
+class SimpleLogoutView(LogoutView):
+    template_name = 'registration/logged_out.html'
