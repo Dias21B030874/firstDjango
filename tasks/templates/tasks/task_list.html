@@ -7,7 +7,7 @@ Task list
 {% block content %}
 <h3>Task List</h3>
 {% for task in tasks %}
-<p>{{ forloop.counter }}. {{ task.name }} - {{ task.get_status_display }}. Created at: {{ task.created_at }}, Updated at: {{ task.updated_at }}
+<p>{{ forloop.counter }}. {{ task.name }} - {{ task.get_status_display }}.
     (<a href="{% url 'tasks:task_update' task.id %}">Update</a> |
     <a href="{% url 'tasks:task_delete' task.id %}">Delete</a>)
 </p>

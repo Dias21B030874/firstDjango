@@ -12,9 +12,14 @@ class Status(models.TextChoices):
     FINISHED = 'f', "Finished"
     FAILED = 'fail', "Failed"
 
+    status = models.CharField(verbose_name="Task status", max_length=10, choices=Status.choices)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    creator = models.ForeignKey('auth.User', related_name='movies', on_delete=models.CASCADE, null=True)
+
 
 class Task(models.Model):
-    name = models.CharField(verbose_name="Task name", max_length=100, unique=True)
+    name = models.CharField(verbose_name="Task name", max_length=65, unique=True)
     status = models.CharField(verbose_name="Task status", max_length=10, choices=Status.choices)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
